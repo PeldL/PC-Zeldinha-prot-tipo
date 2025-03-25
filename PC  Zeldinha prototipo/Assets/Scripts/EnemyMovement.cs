@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Tilemaps;
 using UnityEngine;
 
 public class EnemyMovement : MonoBehaviour
@@ -8,14 +7,18 @@ public class EnemyMovement : MonoBehaviour
     public float speed;
     private bool isChansing;
     private int facingDirection = -1;
-
+    private EnemyState enemyState;
+    
     private Rigidbody2D rb;
     private Transform player;
+    private Animator anim;
 
     // Start is called before the first frame update
     void Start()
     {
+        ChangeState(EnemyState.Idle);
         rb = GetComponent<Rigidbody2D>();   
+        anim = GetComponent<Animator>();
     }
 
 
@@ -63,4 +66,21 @@ public class EnemyMovement : MonoBehaviour
             isChansing = false;
         }
     }
+
+    void ChangeState(EnemyState newstate)
+    {
+        if (enemyState == EnemyState.Idle)
+            anim.SetBool("isIdle", false);
+    }
+
+
+
+
+}
+
+
+public enum EnemyState
+{
+    Idle,
+    Chasing,
 }
