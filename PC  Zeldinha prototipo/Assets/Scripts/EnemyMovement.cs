@@ -21,6 +21,7 @@ public class EnemyMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();   
         anim = GetComponent<Animator>();
         ChangeState(EnemyState.Idle);
+
     }
 
 
@@ -34,8 +35,8 @@ public class EnemyMovement : MonoBehaviour
                 Chase();
             }
             else if (enemyState ==EnemyState.Attacking) 
-            { 
-             
+            {
+                rb.velocity = Vector2.zero;
             }
         }
        

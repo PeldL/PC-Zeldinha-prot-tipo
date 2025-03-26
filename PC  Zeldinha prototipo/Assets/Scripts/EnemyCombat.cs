@@ -18,5 +18,10 @@ public class EnemyCombat : MonoBehaviour
         }
     }
 
+    public void Attack() 
+    {
 
+        Debug.Log("Attacking Player");
+    
+    }
 }
