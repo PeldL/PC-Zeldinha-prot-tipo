@@ -6,6 +6,11 @@ public class EnemyCombat : MonoBehaviour
 {
 
     public int damage = 1;
+    public Transform attackPoint;
+    public float weaponRange;
+    public LayerMask playerLayer;
+
+
 
 
 
@@ -18,10 +23,16 @@ public class EnemyCombat : MonoBehaviour
         }
     }
 
-    public void Attack() 
+    public void Attack()
     {
 
-        Debug.Log("Attacking Player");
-    
+        
+        Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, weaponRange, playerLayer);
+        
+        
+        if(hits.Length > 0)
+        {
+            hits[0].GetComponent<PlayerHealth>().ChangeHealth(-damage);
+        }
     }
 }
