@@ -5,14 +5,22 @@ using UnityEngine;
 public class EnemyMovement : MonoBehaviour
 {
     public float speed;
+    public float attackRange = 2;
+    public float attackCooldown = 2;
+    public float playerDetecRange = 5;
+    public Transform detectionPoint;
+    public LayerMask playerLayer;
+
+    private float attackCooldownTimer;
     private int facingDirection = -1;
     private EnemyState enemyState, newstate;
 
-    public float attackRange = 2;
+   
 
     private Rigidbody2D rb;
     private Transform player;
     private Animator anim;
+
 
     // Start is called before the first frame update
     void Start()
@@ -28,6 +36,15 @@ public class EnemyMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        CheckForPlayer();
+
+
+        if (attackCooldown > 0)
+        {
+            attackCooldownTimer -= Time.deltaTime;
+        }
+
+
         if (enemyState == EnemyState.Chasing)
         {
             if (enemyState == EnemyState.Chasing)
@@ -44,11 +61,7 @@ public class EnemyMovement : MonoBehaviour
 
 
     void Chase()
-    {
-        if(Vector2.Distance(transform.position, player.transform.position)  <= attackRange) 
-        {
-            ChangeState(EnemyState.Attacking);  
-        }
+    { 
 
        else if (player.position.x < transform.position.x && facingDirection == -1 ||
             player.position.x > transform.position.x && facingDirection == 1)
@@ -70,14 +83,16 @@ public class EnemyMovement : MonoBehaviour
 
 
 
-    private void OnTriggerStay2D(Collider2D collision)
+    private void CheckForPlayer()
     {
-        if (collision.gameObject.tag == "Player")
+
+        Collider2D[] hits = Physics2D.OverlapCircleAll(detectionPoint.position, playerDetecRange, playerLayer);
+        if (hits.Length > 0 )
         {
-            if(player == null) 
-            { 
-                player = collision.transform;
-            }
+            player = hits[0].transform;
+        
+
+        
             ChangeState(EnemyState.Chasing);
         }
     }
