@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnemyMovement : MonoBehaviour
 {
     public float speed;
-    public float attackRange = 2;
+    public float attackRange = 1.5f; // Aumentado para evitar que o inimigo perca o ataque
     public float attackCooldown = 2;
     public float playerDetecRange = 5;
     public Transform detectionPoint;
@@ -13,57 +13,41 @@ public class EnemyMovement : MonoBehaviour
 
     private float attackCooldownTimer;
     private int facingDirection = -1;
-    private EnemyState enemyState, newstate;
-
-   
+    private EnemyState enemyState;
 
     private Rigidbody2D rb;
     private Transform player;
     private Animator anim;
 
-
-    // Start is called before the first frame update
     void Start()
     {
-       
-        rb = GetComponent<Rigidbody2D>();   
+        rb = GetComponent<Rigidbody2D>();
         anim = GetComponent<Animator>();
         ChangeState(EnemyState.Idle);
-
     }
 
-
-    // Update is called once per frame
     void Update()
     {
         CheckForPlayer();
 
-
-        if (attackCooldown > 0)
+        if (attackCooldownTimer > 0)
         {
             attackCooldownTimer -= Time.deltaTime;
         }
 
-
         if (enemyState == EnemyState.Chasing)
         {
-            if (enemyState == EnemyState.Chasing)
-            {
-                Chase();
-            }
-            else if (enemyState ==EnemyState.Attacking) 
-            {
-                rb.velocity = Vector2.zero;
-            }
+            Chase();
         }
-       
+        else if (enemyState == EnemyState.Attacking)
+        {
+            rb.velocity = Vector2.zero; // Para o movimento enquanto ataca
+        }
     }
 
-
     void Chase()
-    { 
-
-       else if (player.position.x < transform.position.x && facingDirection == -1 ||
+    {
+        if (player.position.x < transform.position.x && facingDirection == -1 ||
             player.position.x > transform.position.x && facingDirection == 1)
         {
             Flip();
@@ -72,42 +56,52 @@ public class EnemyMovement : MonoBehaviour
         rb.velocity = direction * speed;
     }
 
-
-
     void Flip()
-    {   
+    {
         facingDirection *= -1;
         transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
     }
 
-
-
-
     private void CheckForPlayer()
     {
-
         Collider2D[] hits = Physics2D.OverlapCircleAll(detectionPoint.position, playerDetecRange, playerLayer);
-        if (hits.Length > 0 )
+        if (hits.Length > 0)
         {
             player = hits[0].transform;
-        
+            float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        
-            ChangeState(EnemyState.Chasing);
+            Debug.Log("Distância do player: " + distanceToPlayer + " | attackRange: " + attackRange);
+
+            if (distanceToPlayer <= attackRange && attackCooldownTimer <= 0)
+            {
+                Debug.Log("Atacando agora!");
+                ChangeState(EnemyState.Attacking);
+                attackCooldownTimer = attackCooldown; // Reseta cooldown do ataque
+            }
+            else
+            {
+                ChangeState(EnemyState.Chasing);
+            }
+        }
+        else
+        {
+            ChangeState(EnemyState.Idle);
         }
     }
+
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Player")
+        if (collision.gameObject.CompareTag("Player"))
         {
             rb.velocity = Vector2.zero;
             ChangeState(EnemyState.Idle);
         }
     }
 
-    void ChangeState(EnemyState newstate)
+    void ChangeState(EnemyState newState)
     {
-        
+        Debug.Log("Mudando estado para: " + newState);
+
         if (enemyState == EnemyState.Idle)
             anim.SetBool("isIdle", false);
         else if (enemyState == EnemyState.Chasing)
@@ -115,21 +109,26 @@ public class EnemyMovement : MonoBehaviour
         else if (enemyState == EnemyState.Attacking)
             anim.SetBool("isAttacking", false);
 
-        enemyState = newstate;
+        enemyState = newState;
 
         if (enemyState == EnemyState.Idle)
             anim.SetBool("isIdle", true);
         else if (enemyState == EnemyState.Chasing)
             anim.SetBool("isChasing", true);
         else if (enemyState == EnemyState.Attacking)
+        {
             anim.SetBool("isAttacking", true);
+            Debug.Log("ATACANDO! isAttacking foi ativado.");
+            StartCoroutine(AttackDuration());
+        }
     }
 
-
-
-
+    IEnumerator AttackDuration()
+    {
+        yield return new WaitForSeconds(1f); // Mantém o estado de ataque por 1 segundo
+        ChangeState(EnemyState.Idle);
+    }
 }
-
 
 public enum EnemyState
 {
