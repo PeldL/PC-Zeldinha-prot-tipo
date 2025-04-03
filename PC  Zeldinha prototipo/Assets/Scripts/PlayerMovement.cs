@@ -10,7 +10,27 @@ public class PlayerMovement : MonoBehaviour
 
     public Rigidbody2D rb;
     public Animator anim;
-    
+
+    public PlayerCombat player_Combat;
+
+
+
+
+
+    private void Update()
+    {
+        if (Input.GetButtonDown("Slash"))
+        {
+            player_Combat.Attack();
+        }
+
+
+    }
+
+
+
+
+
     void FixedUpdate()
     {
         float horizontal = Input.GetAxis("Horizontal");
