@@ -27,4 +27,12 @@ public class PlayerHealth : MonoBehaviour
             gameObject.SetActive(false);
         }
     }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("heal"))
+        {
+            maxHealth += 1;
+            Destroy(collision.gameObject);
+        }
+    }
 }
