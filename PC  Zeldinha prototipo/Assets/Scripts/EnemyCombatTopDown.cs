@@ -1,4 +1,3 @@
-// EnemyCombatTopDown.cs
 using UnityEngine;
 
 public class EnemyCombatTopDown : MonoBehaviour
@@ -6,11 +5,11 @@ public class EnemyCombatTopDown : MonoBehaviour
     public int attackDamage = 10;
     public float attackRange = 1.0f;
     public float attackCooldown = 1.5f;
-    private float attackCooldownTimer;
 
+    private float attackCooldownTimer;
+    private Animator anim;
     public Transform attackPoint;
     public LayerMask playerLayer;
-    private Animator anim;
 
     void Start()
     {
@@ -27,18 +26,26 @@ public class EnemyCombatTopDown : MonoBehaviour
 
     private void TryAttack()
     {
-        Collider2D playerHit = Physics2D.OverlapCircle(attackPoint.position, attackRange, playerLayer);
-        if (playerHit != null && attackCooldownTimer <= 0)
-        {
-            anim.SetTrigger("isAttacking"); // Ativa a animação de ataque
+        if (attackCooldownTimer > 0) return; // Evita atacar antes do cooldown acabar
 
+        anim.SetTrigger("isAttacking"); // Ativa a animação de ataque
+
+        // Adiciona um pequeno atraso para dar o dano no momento certo da animação
+        Invoke("DealDamage", 0.3f);
+
+        attackCooldownTimer = attackCooldown;
+    }
+
+    private void DealDamage()
+    {
+        Collider2D playerHit = Physics2D.OverlapCircle(attackPoint.position, attackRange, playerLayer);
+        if (playerHit != null)
+        {
             PlayerHealth playerHealth = playerHit.GetComponent<PlayerHealth>();
             if (playerHealth != null)
             {
                 playerHealth.ChangeHealth(-attackDamage);
             }
-
-            attackCooldownTimer = attackCooldown;
         }
     }
 
