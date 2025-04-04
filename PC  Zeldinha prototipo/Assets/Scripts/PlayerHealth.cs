@@ -15,6 +15,7 @@ public class PlayerHealth : MonoBehaviour
     {
         healthText.text = "HP: " + currentHealth + " / " + maxHealth;
     }
+
     public void ChangeHealth(int amount)
     {
         currentHealth += amount;
@@ -22,11 +23,12 @@ public class PlayerHealth : MonoBehaviour
 
         healthText.text = "HP: " + currentHealth + " / " + maxHealth;
 
-        if (currentHealth <= 0) 
-        { 
+        if (currentHealth <= 0)
+        {
             gameObject.SetActive(false);
         }
     }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.gameObject.CompareTag("heal"))

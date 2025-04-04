@@ -12,7 +12,7 @@ public class ScriptDomenu : MonoBehaviour
 {
     public void IniciarGame () 
     {
-        SceneManager.LoadScene("Test");
+        SceneManager.LoadScene("Game");
     }
     public void FecharJogo()
     {

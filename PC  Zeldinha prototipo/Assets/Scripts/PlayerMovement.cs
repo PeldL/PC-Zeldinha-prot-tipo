@@ -4,45 +4,59 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float speed = 5;
-    public int facingDirection = 1;
+    public float moveSpeed = 5f;  // Velocidade de movimento
+    private Rigidbody2D rb;       // Para controlar a física do jogador
+    private Vector2 movement;     // Para armazenar a direção do movimento
+    private int facingDirection = 1;  // Variável para controlar a direção de virada do personagem
 
-    public Rigidbody2D rb;
-    private PlayerCombat player_Combat;
-
+    // Start é chamado quando o script é inicializado
     void Start()
     {
-        // Garante que o PlayerCombat seja atribuído automaticamente
-        player_Combat = GetComponent<PlayerCombat>();
+        rb = GetComponent<Rigidbody2D>();  // Obtém o componente Rigidbody2D do jogador
     }
 
+    // Update é chamado uma vez por frame
     void Update()
     {
-        if (Input.GetButtonDown("Fire1"))
-        {
-            player_Combat.Attack();
-        }
-
-        Move();
+        ProcessInput();  // Processa a entrada do jogador
     }
 
-    void Move()
+    // FixedUpdate é chamado uma vez por frame, mas é usado para física, por isso é ideal para movimentação
+    void FixedUpdate()
     {
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+        MoveCharacter();  // Aplica o movimento físico
+    }
 
-        rb.velocity = new Vector2(horizontal, vertical) * speed;
+    // Função para processar a entrada do jogador
+    void ProcessInput()
+    {
+        // Obtém a direção do movimento a partir das teclas W, A, S, D ou setas
+        float moveX = Input.GetAxisRaw("Horizontal");  // Para a direção horizontal (esquerda/direita)
+        float moveY = Input.GetAxisRaw("Vertical");    // Para a direção vertical (cima/baixo)
 
-        if (horizontal > 0 && transform.localScale.x < 0 ||
-            horizontal < 0 && transform.localScale.x > 0)
+        movement = new Vector2(moveX, moveY).normalized;  // Normaliza para evitar movimento diagonal mais rápido
+
+        // Chama a função de flip se necessário
+        if (moveX != 0)
         {
-            Flip();
+            Flip(moveX);  // Se houver movimento horizontal, chama o Flip
         }
     }
 
-    void Flip()
+    // Função para mover o personagem
+    void MoveCharacter()
     {
-        facingDirection *= -1;
-        transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);
+        rb.velocity = movement * moveSpeed;  // Aplica a velocidade ao Rigidbody2D
+    }
+
+    // Função para virar o personagem dependendo da direção
+    void Flip(float moveX)
+    {
+        // Se o movimento for para a esquerda, viramos o personagem
+        if (moveX > 0 && facingDirection == -1 || moveX < 0 && facingDirection == 1)
+        {
+            facingDirection *= -1;  // Inverte a direção de virada
+            transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);  // Faz o flip
+        }
     }
 }
