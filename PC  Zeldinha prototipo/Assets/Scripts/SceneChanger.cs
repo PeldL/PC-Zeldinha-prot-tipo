@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement; 
+using UnityEngine.SceneManagement; // Importa o sistema de gerenciamento de cenas
 
 public class SceneChanger : MonoBehaviour
 {

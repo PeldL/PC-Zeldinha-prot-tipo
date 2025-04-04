@@ -4,59 +4,76 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public float moveSpeed = 5f;  // Velocidade de movimento
-    private Rigidbody2D rb;       // Para controlar a física do jogador
-    private Vector2 movement;     // Para armazenar a direção do movimento
-    private int facingDirection = 1;  // Variável para controlar a direção de virada do personagem
+    public float moveSpeed = 5f;
+    public Animator anim; // Animator do personagem
+    private Rigidbody2D rb;
+    private Vector2 movement;
 
-    // Start é chamado quando o script é inicializado
     void Start()
     {
-        rb = GetComponent<Rigidbody2D>();  // Obtém o componente Rigidbody2D do jogador
+        rb = GetComponent<Rigidbody2D>();
+        if (anim == null)
+            anim = GetComponent<Animator>(); // Garantir que o Animator foi atribuído
     }
 
-    // Update é chamado uma vez por frame
     void Update()
     {
-        ProcessInput();  // Processa a entrada do jogador
+        // Processar a entrada do jogador (movimento e ataque)
+        ProcessInput();
+
+        // Atualizar a animação com base no movimento
+        UpdateAnimations();
     }
 
-    // FixedUpdate é chamado uma vez por frame, mas é usado para física, por isso é ideal para movimentação
-    void FixedUpdate()
+    // Processar a entrada do jogador (movimento e ataque)
+    private void ProcessInput()
     {
-        MoveCharacter();  // Aplica o movimento físico
-    }
+        // Coletar entradas de movimento (horizontal e vertical)
+        float horizontal = Input.GetAxisRaw("Horizontal");
+        float vertical = Input.GetAxisRaw("Vertical");
 
-    // Função para processar a entrada do jogador
-    void ProcessInput()
-    {
-        // Obtém a direção do movimento a partir das teclas W, A, S, D ou setas
-        float moveX = Input.GetAxisRaw("Horizontal");  // Para a direção horizontal (esquerda/direita)
-        float moveY = Input.GetAxisRaw("Vertical");    // Para a direção vertical (cima/baixo)
+        // Criar vetor de movimento e normalizar
+        movement = new Vector2(horizontal, vertical).normalized;
 
-        movement = new Vector2(moveX, moveY).normalized;  // Normaliza para evitar movimento diagonal mais rápido
-
-        // Chama a função de flip se necessário
-        if (moveX != 0)
+        // Se o personagem se mover, atualiza a animação
+        if (movement.magnitude > 0)
         {
-            Flip(moveX);  // Se houver movimento horizontal, chama o Flip
+            anim.SetBool("isWalking", true);  // Ativa animação de Walking
+        }
+        else
+        {
+            anim.SetBool("isWalking", false); // Desativa animação de Walking
+        }
+
+        // Lógica para o ataque (pressione 'Space' para atacar)
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            anim.SetTrigger("isAttacking"); // Ativar animação de ataque
         }
     }
 
-    // Função para mover o personagem
-    void MoveCharacter()
+    private void UpdateAnimations()
     {
-        rb.velocity = movement * moveSpeed;  // Aplica a velocidade ao Rigidbody2D
+        // A animação de Idle será ativada quando o personagem não estiver andando
+        if (movement.magnitude == 0)
+        {
+            anim.SetBool("isIdle", true);  // Ativa animação de Idle
+        }
+        else
+        {
+            anim.SetBool("isIdle", false); // Desativa animação de Idle
+        }
     }
 
-    // Função para virar o personagem dependendo da direção
-    void Flip(float moveX)
+    private void FixedUpdate()
     {
-        // Se o movimento for para a esquerda, viramos o personagem
-        if (moveX > 0 && facingDirection == -1 || moveX < 0 && facingDirection == 1)
-        {
-            facingDirection *= -1;  // Inverte a direção de virada
-            transform.localScale = new Vector3(transform.localScale.x * -1, transform.localScale.y, transform.localScale.z);  // Faz o flip
-        }
+        // Movimento do personagem (fixo, para não ocorrer jitter)
+        MoveCharacter();
+    }
+
+    private void MoveCharacter()
+    {
+        // Movimenta o personagem com base na entrada do usuário
+        rb.velocity = movement * moveSpeed;
     }
 }

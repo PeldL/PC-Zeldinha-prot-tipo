@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.SceneManagement; // Importar para usar SceneManager
 
 public class PlayerHealth : MonoBehaviour
 {
@@ -25,7 +26,8 @@ public class PlayerHealth : MonoBehaviour
 
         if (currentHealth <= 0)
         {
-            gameObject.SetActive(false);
+            gameObject.SetActive(false); // Desativa o objeto jogador (opcional)
+            LoadDeathScene(); // Chama a função para mudar de cena
         }
     }
 
@@ -36,5 +38,11 @@ public class PlayerHealth : MonoBehaviour
             maxHealth += 1;
             Destroy(collision.gameObject);
         }
+    }
+
+    // Função para carregar a cena de "MORTE"
+    private void LoadDeathScene()
+    {
+        SceneManager.LoadScene("MORTE"); // Troca para a cena "MORTE"
     }
 }
