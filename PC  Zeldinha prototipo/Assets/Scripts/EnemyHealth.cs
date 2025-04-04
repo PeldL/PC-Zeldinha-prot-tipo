@@ -4,30 +4,28 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    public int curentHealth;
-    public int maxHealth;
-    
+    public int maxHealth = 3;
+    private int currentHealth;
 
     void Start()
     {
-        curentHealth = maxHealth;
+        currentHealth = maxHealth;
     }
 
-    // Update is called once per frame
-    public void ChangeHealth(int amount)
+    public void TakeDamage(int damage)
     {
-        curentHealth += amount;
-        if(curentHealth > maxHealth)
+        currentHealth -= damage;
+        Debug.Log(gameObject.name + " tomou dano! Vida restante: " + currentHealth);
+
+        if (currentHealth <= 0)
         {
-
-            curentHealth = maxHealth;
-
+            Die();
         }
+    }
 
-        else if (curentHealth <= 0)
-        {
-            Destroy(gameObject);
-        }
-
+    void Die()
+    {
+        Debug.Log(gameObject.name + " morreu!");
+        Destroy(gameObject);
     }
 }
